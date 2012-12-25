@@ -43,7 +43,8 @@ module Tire
       end
 
       def params
-        @options.empty? ? '' : '?' + @options.to_param
+        opts = @options.except(*Configuration.excluded_param_options)
+        opts.empty? ? '' : '?' + opts.to_param
       end
 
       def query(&block)
@@ -111,7 +112,7 @@ module Tire
       end
 
       def perform
-        @response = Configuration.client.get(self.url, self.to_json)
+        @response = Configuration.client.get(self.url + self.params, self.to_json)
         if @response.failure?
           STDERR.puts "[REQUEST FAILED] #{self.to_curl}\n"
           raise SearchRequestFailed, @response.to_s
@@ -124,7 +125,7 @@ module Tire
       end
 
       def to_curl
-        %Q|curl -X GET "#{url}?pretty=true" -d '#{to_json}'|
+        %Q|curl -X GET "#{url}#{params.empty? ? '?' : params.to_s + '&'}pretty=true" -d '#{to_json}'|
       end
 
       def to_hash

@@ -19,6 +19,13 @@ module Tire
       @logger || nil
     end
 
+    def self.excluded_param_options(*args)
+      @excluded_param_options ||= []
+      @excluded_param_options += args if args.any?
+
+      @excluded_param_options
+    end
+
     def self.reset(*properties)
       reset_variables = properties.empty? ? instance_variables : instance_variables.map { |p| p.to_s} & \
                                                                  properties.map         { |p| "@#{p}" }
